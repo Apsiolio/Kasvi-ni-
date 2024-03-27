@@ -1,14 +1,16 @@
 //Libraries
 #include <CapacitiveSensor.h>//https://github.com/PaulStoffregen/CapacitiveSensor
-#include <MIDI.h>
 //Parameters
-MIDI_CREATE_DEFAULT_INSTANCE();
 bool autocal 	= 0;
+int value_2 = 0;
+int value_3 = 0;
 const int numReadings 	= 10;
 long readings [numReadings];
 int readIndex 	= 0;
 long total 	= 0;
 int LED_PIN = 5;
+int LED_PIN_2 = 9;
+int LED_PIN_3 = 10;
 int value = 0;
 const int sensitivity 	= 1000;
 const int thresh 	= 200;
@@ -19,7 +21,11 @@ void setup() {
  	Serial.begin(9600);
  	Serial.println(F("Initialize System"));
   pinMode(LED_PIN, OUTPUT);
-  digitalWrite(LED_PIN, HIGH);
+  pinMode(LED_PIN_2, OUTPUT);
+  pinMode(LED_PIN_3, OUTPUT);
+  digitalWrite(LED_PIN, LOW);
+  digitalWrite(LED_PIN_2, LOW);
+  digitalWrite(LED_PIN_3, LOW);
  	//Init cs
  	if (autocal == 0) {
  			{
@@ -30,9 +36,28 @@ void setup() {
 void loop() {
 
   value = smooth();
+  if (value > 25000){
+    value = 25000;
+  }
+  else if (value < 0){
+    value = 25000;
+  }
  	Serial.println(value);
-  analogWrite(LED_PIN, (value / 157));
-
+  analogWrite(LED_PIN_2, (value / 157));
+  if (value > 9000){
+    value_2 = (value - 9000);
+    analogWrite(LED_PIN, (value_2 / 157));
+  }
+  else{
+    digitalWrite(LED_PIN, LOW);
+  }
+  if (value > 18000){
+    value_3 = (value - 18000);
+    analogWrite(LED_PIN_3, (value_3 / 157));
+  }
+  else{
+    digitalWrite(LED_PIN_3, LOW);
+  }
 }
 long smooth() { /* function smooth */
  	////Perform average on sensor readings
